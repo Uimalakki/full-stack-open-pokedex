@@ -1,0 +1,44 @@
+# fly.toml app configuration file generated for uimis-pokedex on 2023-07-27T09:47:55+03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "uimis-pokedex"
+primary_region = "arn"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  http_checks = []
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "1s"
+    interval = "15s"
+    method = "GET"
+    timeout = "2s"
+    path = "/health"
+
+[experimental]
+  auto_rollback = true
+
+[deploy]
+  release_command = "npm run build"
+
+[processes]
+  app = "node app.js"
+
+[build]
+  [build.args]
+    NODE_VERSION = "16.15.0"
+
+[env]
+  PORT = "8080" # add this
+
+#[[services]]
+#  internal_port = 8080
+#  processes = ["app"]
+#  http_checks = []
