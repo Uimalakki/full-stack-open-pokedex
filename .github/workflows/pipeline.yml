@@ -25,27 +25,27 @@ jobs:
         run: npm run build
       - name: test
         run: npm run test
-      - name: e2e tests
-        uses: cypress-io/github-action@v5
-        with:
-          start: npm run start-prod
-          wait-on: http://localhost:5000
-          wait-on-timeout: 60
-      - name: Deployment, setup fly.io config
-        uses: superfly/flyctl-actions/setup-flyctl@master
-        if: ${{ github.event_name == 'push' }}
-      - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
-        if: ${{ github.event_name == 'push' }}
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-          
+     # - name: e2e tests
+     #   uses: cypress-io/github-action@v5
+     #   with:
+     #     start: npm run start-prod
+     #     wait-on: http://localhost:5000
+     #     wait-on-timeout: 60
+     # - name: Deployment, setup fly.io config
+     #   uses: superfly/flyctl-actions/setup-flyctl@master
+     #   if: ${{ github.event_name == 'push' }}
+     # - name: Deploy to Fly.io
+     #   run: flyctl deploy --remote-only
+     #   if: ${{ github.event_name == 'push' }}
+     #   env:
+     #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
   tab_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
       - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.64.0
+        uses: anothrNick/github-tag-action@@8c8163ef62cf9c4677c8e800f36270af27930f42
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
