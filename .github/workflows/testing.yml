@@ -22,6 +22,6 @@ jobs:
         env:
           COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
         run: echo "$COMMIT_MESSAGES"
-      - name: tulostuuko
+      - name: sisältää skipin
         run: echo "tulostui!"
         if: ${{ contains(github.event.commits.*.message, '#skip') }}
