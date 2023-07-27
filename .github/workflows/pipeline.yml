@@ -51,6 +51,6 @@ jobs:
           DEFAULT_BUMP: patch
       - name: tulosta commit
         env:
-          COMMIT_MESSAGES: ${{ github.event.commits.*.message }}
+          COMMIT_MESSAGES: ${{ github.event.commits }}
         run: echo "$COMMIT_MESSAGES"
         # if: ${{ !contains(github.event.commits.*.message, '#skip') }}
