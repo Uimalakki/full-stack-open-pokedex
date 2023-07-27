@@ -50,5 +50,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
       - name: tulosta commit
-        run: echo ${{ github.event.commits.*.message }}
+        run: echo "${{ github.event.commits.*.message }}"
         # if: ${{ !contains(github.event.commits.*.message, '#skip') }}
