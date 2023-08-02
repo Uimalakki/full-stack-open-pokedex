@@ -1,4 +1,4 @@
-name: Deployment pipeline
+name: Deployment Pipeline
 
 on:
   push:
@@ -7,46 +7,61 @@ on:
   pull_request:
     branches: [master]
     types: [opened, synchronize]
-  # note that your "main" branch might be called main instead of master
 
 jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
           node-version: '16'
+
       - name: Install dependencies
         run: npm install
+
       - name: Check style
         run: npm run eslint
-      - name: build
+
+      - name: Build
         run: npm run build
-      - name: test
+
+      - name: Test
         run: npm run test
-      - name: e2e tests
+
+      - name: E2E tests
         uses: cypress-io/github-action@v5
         with:
           start: npm run start-prod
           wait-on: http://localhost:5000
           wait-on-timeout: 60
-      - name: Deployment, setup fly.io config
-        uses: superfly/flyctl-actions/setup-flyctl@master
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
-      - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+
+      - name: Deployment setup and deploy to Fly.io
+        run: |
+          if [[ ${{ github.event_name == 'push' && !contains(github.event.commits.*.message, '#skip') }} ]]; then
+            echo "Setting up Fly.io..."
+            superfly/flyctl-actions/setup-flyctl@master
+            echo "Deploying to Fly.io..."
+            flyctl deploy --remote-only
+          else
+            echo "Skipping deployment."
+          fi
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}sdff
-  
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
   tab_release:
-    needs: [simple_deployment_pipeline]
+    needs: simple_deployment_pipeline
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: anothrNick/github-tag-action@1.55.0
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Determine tag
+        uses: anothrNick/github-tag-action@1.55.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
-    if: ${{ !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+        if: ${{ !contains(github.event.commits.*.message, '#skip') }}
